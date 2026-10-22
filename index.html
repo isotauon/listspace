@@ -1,291 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="icon" href="/icon-512.png" type="image/png">
-    <title>Listspace</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap');
-        body {
-            background-color: #0f172a;
-            font-family: 'Open Sans', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            z-index: -1;
-        }
-        .star {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            background: white;
-            border-radius: 50%;
-        }
-        .blinking-star {
-            animation: twinkle 1.5s infinite ease-in-out alternate;
-        }
-        .shooting-star {
-            width: 2px;
-            height: 2px;
-            background: white;
-            position: absolute;
-            border-radius: 50%;
-            animation: shoot 1s linear infinite;
-        }
-
-        @keyframes shoot {
-            0% {
-                transform: translate(0, 0);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(100vw, 100vh);
-                opacity: 0;
-            }
-        }
-
-        @keyframes twinkle {
-            from { opacity: 0.3; }
-            to { opacity: 1; }
-        }
-        input[type="text"] {
-            width: 300px;
-            padding: 15px; /* Add more padding for easier tap */
-            margin-bottom: 10px;
-            border: none;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(11.2px);
-            -webkit-backdrop-filter: blur(11.2px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: white;
-            box-sizing: border-box;
-            font-family: 'Open Sans', sans-serif;
-            position: relative;
-            text-align: left;
-            font-size: 14px;
-            inputmode: text; /* Improve keyboard experience */
-        }
-
-        .plus-sign {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: white;
-            font-size: 20px;
-            pointer-events: none;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            box-shadow: none;
-        }
-
-        input[type="text"]::placeholder {
-            color: white;
-            opacity: 1; /* Ensure placeholder text is visible */
-            content: 'Add a new task';
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-            width: 300px;
-            font-family: 'Open Sans', sans-serif;
-        }
-
-        input[type="checkbox"] {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            margin-right: 5px; /* Smaller margin */
-        }
-
-        /* Responsive styles */
-        @media (pointer: coarse) {
-            li {
-                touch-action: none;
-            }
-        }
-
-        li {
-            background: rgba(255, 255, 255, 0.15);
-            margin-bottom: 10px;
-            padding: 5px;
-            border-radius: 16px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(11.2px);
-            -webkit-backdrop-filter: blur(11.2px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: white;
-            cursor: default;
-            width: 300px;
-            box-sizing: border-box;
-            font-family: 'Open Sans', sans-serif;
-            font-size: 14px;
-        }
-        .task-text {
-            flex-grow: 1;
-            margin-left: 10px;
-        }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const taskList = document.getElementById('task-list');
-            const taskInput = document.getElementById('task-input');
-
-            // Create stars
-            const starContainer = document.createElement('div');
-            starContainer.className = 'stars';
-            document.body.appendChild(starContainer);
-            for (let i = 0; i < 500; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() > 0.7 ? 2 : 1; // 30% of stars will be slightly bigger
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                if (Math.random() > 0.5) { // 50% of stars will blink
-                    star.classList.add('blinking-star');
-                    star.style.animationDelay = Math.random() * 3 + 's';
-                }
-                star.style.top = Math.random() * 100 + 'vh';
-                star.style.left = Math.random() * 100 + 'vw';
-                starContainer.appendChild(star);
-            }
-
-            taskInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const taskText = taskInput.value.trim();
-                    if (taskText) {
-                        const li = document.createElement('li');
-                        li.draggable = true;
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.addEventListener('change', function() {
-                            if (checkbox.checked) {
-                                li.remove();
-                            }
-                        });
-                        li.appendChild(checkbox);
-                        const text = document.createElement('span');
-                        text.className = 'task-text';
-                        text.textContent = taskText;
-                        li.appendChild(text);
-                        taskList.appendChild(li);
-                        taskInput.value = '';
-
-                        taskList.addEventListener('dragstart', function(e) {
-                            e.dataTransfer.effectAllowed = 'move';
-                            e.dataTransfer.setData('text/plain', e.target.textContent);
-                            e.target.classList.add('dragging');
-                            e.dataTransfer.setDragImage(e.target, 0, 0); // Use actual element as drag image
-                        });
-                        taskList.addEventListener('dragend', function() {
-                            li.classList.remove('dragging');
-                        });
-                    }
-                }
-            });
-
-            taskList.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                const dragging = document.querySelector('.dragging');
-                const afterElement = getDragAfterElement(taskList, e.clientY);
-                if (afterElement == null) {
-                    taskList.appendChild(dragging);
-                } else {
-                    taskList.insertBefore(dragging, afterElement);
-                }
-            });
-
-            function getDragAfterElement(container, y) {
-                const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
-                return draggableElements.reduce((closest, child) => {
-                    const box = child.getBoundingClientRect();
-                    const offset = y - box.top - box.height / 2;
-                    if (offset < 0 && offset > closest.offset) {
-                        return { offset: offset, element: child };
-                    } else {
-                        return closest;
-                    }
-                }, { offset: Number.NEGATIVE_INFINITY }).element;
-            }
-
-            // Mobile touch events
-            taskList.addEventListener('touchstart', function(e) {
-                const touch = e.touches[0];
-                const target = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (target && target.tagName === 'LI') {
-                    const dragEvent = new DragEvent('dragstart', {
-                        bubbles: true,
-                        cancelable: true,
-                        dataTransfer: new DataTransfer()
-                    });
-                    target.dispatchEvent(dragEvent);
-                }
-            });
-
-            taskList.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                const target = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (target && target.tagName === 'LI') {
-                    const dragEvent = new DragEvent('dragover', {
-                        bubbles: true,
-                        cancelable: true,
-                        dataTransfer: new DataTransfer()
-                    });
-                    target.dispatchEvent(dragEvent);
-                }
-            });
-
-            taskList.addEventListener('touchend', function(e) {
-                const touch = e.changedTouches[0];
-                const target = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (target && target.tagName === 'LI') {
-                    const dragEvent = new DragEvent('drop', {
-                        bubbles: true,
-                        cancelable: true,
-                        dataTransfer: new DataTransfer()
-                    });
-                    target.dispatchEvent(dragEvent);
-                }
-            });
-        });
-    </script>
-    <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
-    </script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<title>ephemeral list</title>
+	<meta name="description" content="an ephemeral list">
+	<meta name="theme-color" content="#0f172a">
+	<meta name="color-scheme" content="dark">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="ephemeral">
+	<link rel="icon" href="/icon-192.png" type="image/png">
+	<link rel="apple-touch-icon" href="/icon-192.png">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap">
+	<style>
+	/* one night sky, glass over it: the field, the add button and every row are the same object */
+	:root { --night: #0f172a; --glass: rgba(255,255,255,.14); --glass-hi: rgba(255,255,255,.24); --edge: rgba(255,255,255,.12); --ink: #fff; --ink-soft: rgba(255,255,255,.62); }
+	* { box-sizing: border-box; }
+	html, body { margin: 0; min-height: 100%; }
+	body { background: var(--night); color: var(--ink); font-family: 'Open Sans', -apple-system, system-ui, sans-serif; font-size: 16px; -webkit-tap-highlight-color: transparent; }
+	#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+	main { width: min(380px, 100%); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; gap: 12px; padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
+	/* the field comes first and stays at the top while the list scrolls under it */
+	#add { display: flex; gap: 8px; position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 2; }
+	#task, #plus, .item { background: var(--glass); border: 1px solid var(--edge); border-radius: 14px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--ink); }
+	#task { flex: 1; min-width: 0; height: 48px; padding: 0 14px; font: inherit; font-size: 16px; }
+	#task::placeholder { color: var(--ink); opacity: .7; }
+	#task:focus-visible, #plus:focus-visible, .item:has(input:focus-visible) { outline: 2px solid rgba(255,255,255,.8); outline-offset: 2px; }
+	#plus { width: 48px; height: 48px; flex: none; font: inherit; font-size: 26px; line-height: 1; cursor: pointer; padding: 0; }
+	#plus:hover { background: var(--glass-hi); }
+	#plus:active { transform: scale(.94); }
+	#list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+	.item { display: flex; min-height: 48px; transition: opacity .25s, transform .25s, background .15s; }
+	.item:hover { background: var(--glass-hi); }
+	.item label { position: relative; display: flex; align-items: center; gap: 12px; flex: 1; min-height: 48px; padding: 10px 14px; cursor: pointer; }
+	.item input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+	/* the check: an empty ring of a box, then a filled one with the mark drawn in */
+	.box { flex: none; width: 22px; height: 22px; border: 1.5px solid rgba(255,255,255,.6); border-radius: 7px; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
+	.box svg { width: 14px; height: 14px; stroke: var(--night); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s ease-out .05s; }
+	.text { flex: 1; min-width: 0; overflow-wrap: anywhere; position: relative; transition: color .25s; }
+	.text::after { content: ''; position: absolute; left: 0; top: 50%; height: 1.5px; width: 0; background: var(--ink-soft); transition: width .25s ease-out; }
+	.item.done .box { background: var(--ink); border-color: var(--ink); transform: scale(1.08); }
+	.item.done .box svg { stroke-dashoffset: 0; }
+	.item.done .text { color: var(--ink-soft); }
+	.item.done .text::after { width: 100%; }
+	.item.gone { opacity: 0; transform: translateX(24px); }
+	.item.dragging { opacity: .4; }
+	.item[draggable="true"] { cursor: grab; }
+	@media (hover: none) {
+		/* a thumb reaches the bottom: the field goes last and keeps to the bottom edge */
+		#add { order: 2; top: auto; bottom: calc(8px + env(safe-area-inset-bottom)); margin-top: auto; }
+	}
+	@media (prefers-reduced-motion: reduce) { .item, .box, .box svg, .text, .text::after, #plus { transition: none; } }
+	</style>
 </head>
 <body>
-    <input type="text" id="task-input" placeholder="+">
-    <ul id="task-list"></ul>
+	<canvas id="sky" aria-hidden="true"></canvas>
+	<main>
+		<form id="add" autocomplete="off">
+			<input id="task" type="text" placeholder="+" aria-label="item" maxlength="140" autocapitalize="sentences" enterkeyhint="done" autocomplete="off">
+			<button id="plus" type="submit" aria-label="add">+</button>
+		</form>
+		<ul id="list" aria-label="list"></ul>
+	</main>
+	<script>
+	(function () {
+	'use strict';
+	var REDUCED = false, HOVER = false;
+	try { REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches; HOVER = matchMedia('(hover: hover)').matches; } catch (e) {}
+	var list = document.getElementById('list'), form = document.getElementById('add'), field = document.getElementById('task');
+
+	// ---------- the list: it lives as long as the tab does ----------
+	var KEY = 'ephemeral-list';
+	function items() { return Array.prototype.map.call(list.querySelectorAll('.item:not(.done)'), function (li) { return li.querySelector('.text').textContent; }); }
+	function save() { try { sessionStorage.setItem(KEY, JSON.stringify(items())); } catch (e) {} }
+	function add(text) {
+		var li = document.createElement('li'); li.className = 'item';
+		var label = document.createElement('label');
+		var box = document.createElement('input'); box.type = 'checkbox';
+		var mark = document.createElement('span'); mark.className = 'box';
+		mark.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5"/></svg>';
+		var span = document.createElement('span'); span.className = 'text'; span.textContent = text;
+		label.appendChild(box); label.appendChild(mark); label.appendChild(span); li.appendChild(label);
+		if (HOVER) li.draggable = true;
+		// checked: the mark draws and the line strikes through; a moment later the row leaves.
+		// unchecking inside that moment keeps it
+		var timer = null;
+		box.addEventListener('change', function () {
+			li.classList.toggle('done', box.checked);
+			clearTimeout(timer);
+			if (box.checked) timer = setTimeout(function () {
+				li.classList.add('gone');
+				setTimeout(function () { li.remove(); save(); }, REDUCED ? 0 : 260);
+			}, 1600);
+			save();
+		});
+		list.appendChild(li);
+		return li;
+	}
+	form.addEventListener('submit', function (e) {
+		e.preventDefault();
+		var t = field.value.trim();
+		if (!t) return;
+		add(t);
+		field.value = '';
+		field.focus();
+		save();
+	});
+	try { (JSON.parse(sessionStorage.getItem(KEY)) || []).forEach(add); } catch (e) {}
+	// a keyboard is already there on a desk; on a phone the keyboard waits for a tap
+	if (HOVER) field.focus();
+
+	// ---------- reorder by dragging, where there is a mouse ----------
+	var dragging = null;
+	list.addEventListener('dragstart', function (e) {
+		dragging = e.target.closest ? e.target.closest('.item') : null;
+		if (!dragging) return;
+		dragging.classList.add('dragging');
+		e.dataTransfer.effectAllowed = 'move';
+		e.dataTransfer.setData('text/plain', dragging.querySelector('.text').textContent);
+	});
+	list.addEventListener('dragend', function () { if (dragging) dragging.classList.remove('dragging'); dragging = null; save(); });
+	list.addEventListener('dragover', function (e) {
+		if (!dragging) return;
+		e.preventDefault();
+		var kids = list.querySelectorAll('.item:not(.dragging)'), after = null;
+		for (var i = 0; i < kids.length; i++) { var b = kids[i].getBoundingClientRect(); if (e.clientY < b.top + b.height / 2) { after = kids[i]; break; } }
+		if (after) list.insertBefore(dragging, after); else list.appendChild(dragging);
+	});
+
+	// ---------- the sky: stars on one canvas, twinkling off the clock ----------
+	var sky = document.getElementById('sky'), sc = sky.getContext('2d'), stars = [], W = 0, H = 0;
+	for (var i = 0; i < 420; i++) stars.push({ x: Math.random(), y: Math.random(), r: Math.random() < .3 ? 1.2 : .7, a: .35 + Math.random() * .5, tw: Math.random() < .5 ? .6 + Math.random() * 1.2 : 0, ph: Math.random() * 6.2832 });
+	function size() {
+		var dpr = Math.min(window.devicePixelRatio || 1, 2);
+		W = window.innerWidth; H = window.innerHeight;
+		sky.width = Math.round(W * dpr); sky.height = Math.round(H * dpr);
+		sc.setTransform(dpr, 0, 0, dpr, 0, 0);
+		draw(performance.now() / 1000);
+	}
+	function draw(t) {
+		sc.clearRect(0, 0, W, H);
+		sc.fillStyle = '#fff';
+		// about one star per 6000 square px, whatever the screen
+		var n = Math.min(stars.length, Math.round(W * H / 6000));
+		for (var i = 0; i < n; i++) {
+			var s = stars[i];
+			sc.globalAlpha = s.tw && !REDUCED ? s.a * (0.6 + 0.4 * Math.sin(t * s.tw + s.ph)) : s.a;
+			sc.beginPath(); sc.arc(s.x * W, s.y * H, s.r, 0, 6.2832); sc.fill();
+		}
+		sc.globalAlpha = 1;
+	}
+	var raf = 0, last = 0;
+	function loop(ms) { if (ms - last > 50) { last = ms; draw(ms / 1000); } raf = requestAnimationFrame(loop); }
+	window.addEventListener('resize', size);
+	size();
+	if (!REDUCED) {
+		raf = requestAnimationFrame(loop);
+		document.addEventListener('visibilitychange', function () { cancelAnimationFrame(raf); if (!document.hidden) raf = requestAnimationFrame(loop); });
+	}
+
+	if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) window.addEventListener('load', function () { navigator.serviceWorker.register('/service-worker.js').catch(function () {}); });
+	})();
+	</script>
 </body>
 </html>
