@@ -23,7 +23,7 @@
 	body { background: var(--night); color: var(--ink); font-family: var(--font); font-size: calc(var(--size) * 1px); font-weight: var(--weight); line-height: 1.4; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; -webkit-tap-highlight-color: transparent; }
 	#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
 	main { width: min(460px, 100%); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: calc(32px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); }
-	header { display: flex; align-items: center; gap: 14px; padding: 0 4px 0 6px; }
+	header { display: flex; align-items: center; justify-content: flex-end; gap: 14px; padding: 0 4px 0 6px; }
 	h1 { margin: 0; flex: 1; font-size: calc(var(--title) * 1px); font-weight: calc(var(--weight) - 50); letter-spacing: -.025em; line-height: 1; }
 	#count { font-size: calc(var(--title) * .6px); font-weight: calc(var(--weight) - 50); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 	.icon { width: 36px; height: 36px; display: grid; place-items: center; border: 0; padding: 0; background: none; color: var(--ink-soft); border-radius: 50%; cursor: pointer; transition: color .15s, background .15s; }
@@ -92,7 +92,7 @@
 <body>
 	<canvas id="sky" aria-hidden="true"></canvas>
 	<main>
-		<header><h1>list</h1><span id="count" aria-label="open"></span></header>
+		<header><span id="count" aria-label="open"></span></header>
 		<div class="group">
 			<ul id="list" aria-label="list"></ul>
 			<form id="add" autocomplete="off">
