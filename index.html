@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<title>ephemeral list</title>
 	<meta name="description" content="an ephemeral list">
-	<meta name="theme-color" content="#0d1424">
+	<meta name="theme-color" content="#0a0a0b">
 	<meta name="color-scheme" content="dark">
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,8 +16,8 @@
 	<link rel="manifest" href="/manifest.json">
 	<style>
 	/* every look below reads a variable; the tune panel moves them and keeps them */
-	:root { --size: 14; --weight: 200; --title: 25; --line: .75; --check: 14; --row: 42; --corner: 19; --frost: 10; --glass: .3; --hue: 206; --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-		--night: #0b1120; --edge: rgba(255,255,255,.08); --ink: #eef1f7; --ink-soft: rgba(238,241,247,.46); --accent: hsl(var(--hue) 92% 80%); }
+	:root { --size: 14; --weight: 200; --title: 25; --line: .75; --check: 14; --row: 42; --corner: 19; --frost: 10; --glass: .3; --stars: 1; --starsize: 1; --shine: 1; --twinkle: 1; --dust: 1; --drift: 1; --dustlife: 1; --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+		--night: #0a0a0b; --edge: rgba(255,255,255,.08); --ink: #f0f0f0; --ink-soft: rgba(240,240,240,.46); --accent: #f2f2f2; }
 	* { box-sizing: border-box; }
 	html, body { margin: 0; min-height: 100%; }
 	body { background: var(--night); color: var(--ink); font-family: var(--font); font-size: calc(var(--size) * 1px); font-weight: var(--weight); line-height: 1.4; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; -webkit-tap-highlight-color: transparent; }
@@ -30,7 +30,7 @@
 	.icon:hover, .icon[aria-expanded="true"] { color: var(--ink); background: rgba(255,255,255,.06); }
 	.icon circle { fill: var(--night); }
 	.icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: calc(var(--line) * 1.25); stroke-linecap: round; }
-	.group { background: rgba(26,32,50,var(--glass)); border: 1px solid var(--edge); border-radius: calc(var(--corner) * 1px); backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); -webkit-backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); overflow: hidden; }
+	.group { background: rgba(30,30,32,var(--glass)); border: 1px solid var(--edge); border-radius: calc(var(--corner) * 1px); backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); -webkit-backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); overflow: hidden; }
 	#list { list-style: none; margin: 0; padding: 0; }
 	/* a hairline between rows, starting where the text starts */
 	.item, #add { position: relative; }
@@ -39,14 +39,16 @@
 	.item label { position: relative; display: flex; align-items: center; gap: 16px; flex: 1; min-height: calc(var(--row) * 1px); padding: 12px 16px; cursor: pointer; }
 	.item input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
 	/* the check: a hairline ring, then a filled circle with the mark drawn in */
-	.box { flex: none; width: calc(var(--check) * 1px); height: calc(var(--check) * 1px); border: calc(var(--line) * 1px) solid rgba(238,241,247,.4); border-radius: 50%; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
+	.box { flex: none; width: calc(var(--check) * 1px); height: calc(var(--check) * 1px); border: calc(var(--line) * 1px) solid rgba(240,240,240,.4); border-radius: 50%; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
 	.item label:hover .box { border-color: var(--accent); }
 	.box svg { width: 55%; height: 55%; stroke: var(--night); stroke-width: calc(var(--line) * 2); stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s ease-out .05s; }
 	.text { flex: 1; min-width: 0; overflow-wrap: anywhere; transition: color .25s; }
 	.item.done .box { background: var(--accent); border-color: var(--accent); }
 	.item.done .box svg { stroke-dashoffset: 0; }
 	.item.done .text { color: var(--ink-soft); }
-	.item.gone { opacity: 0; transform: translateX(24px); }
+	/* leaving: the row fades as its stars lift off, then closes up */
+	.item.gone { opacity: 0; filter: blur(3px); height: 0 !important; overflow: hidden; transition: opacity .35s, filter .35s, height .3s ease-in-out .3s; }
+	#dust { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
 	.item.dragging { opacity: .4; }
 	.item[draggable="true"] { cursor: grab; }
 	.item:has(input:focus-visible) { outline: 1px solid var(--accent); outline-offset: -1px; border-radius: calc(var(--corner) * 1px); }
@@ -56,7 +58,7 @@
 	#task:focus-visible { outline: none; }
 	#task::placeholder { color: var(--ink-soft); }
 	/* the tune panel */
-	#tune { position: fixed; z-index: 5; top: calc(16px + env(safe-area-inset-top)); right: 16px; width: 280px; max-height: calc(100dvh - 32px); overflow: auto; padding: 14px 16px 16px; background: rgba(20,26,42,.82); border: 1px solid var(--edge); border-radius: 16px; backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); box-shadow: 0 20px 50px rgba(0,0,0,.4); font-size: 13px; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+	#tune { position: fixed; z-index: 5; top: calc(16px + env(safe-area-inset-top)); right: 16px; width: 280px; max-height: calc(100dvh - 32px); overflow: auto; padding: 14px 16px 16px; background: rgba(22,22,24,.82); border: 1px solid var(--edge); border-radius: 16px; backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); box-shadow: 0 20px 50px rgba(0,0,0,.4); font-size: 13px; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
 	#tune[hidden] { display: none; }
 	#tune label { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 6px 0; color: var(--ink-soft); }
 	#tune output { color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -126,8 +128,12 @@
 			li.classList.toggle('done', box.checked);
 			clearTimeout(timer);
 			if (box.checked) timer = setTimeout(function () {
+				if (REDUCED) { li.remove(); save(); return; }
+				scatter(span);
+				li.style.height = li.offsetHeight + 'px';
+				li.offsetHeight;
 				li.classList.add('gone');
-				setTimeout(function () { li.remove(); save(); }, REDUCED ? 0 : 260);
+				setTimeout(function () { li.remove(); save(); }, 640);
 			}, 1600);
 			save();
 		});
@@ -151,14 +157,15 @@
 
 
 	// ---------- tune: sliders over the variables in :root, kept in this browser ----------
-	var TUNE = [['text', 'size', 14, 22, 1, 'px'], ['weight', 'weight', 200, 600, 50, ''], ['title', 'title', 20, 48, 1, 'px'], ['line', 'line', .5, 2.5, .25, 'px'], ['check', 'check', 14, 28, 1, 'px'], ['row', 'row', 40, 68, 2, 'px'], ['corners', 'corner', 0, 28, 1, 'px'], ['frost', 'frost', 0, 40, 1, 'px'], ['glass', 'glass', 0, 1, .05, ''], ['colour', 'hue', 0, 360, 2, '']];
+	var TUNE = [['text', 'size', 14, 22, 1, 'px'], ['weight', 'weight', 200, 600, 50, ''], ['title', 'title', 20, 48, 1, 'px'], ['line', 'line', .5, 2.5, .25, 'px'], ['check', 'check', 14, 28, 1, 'px'], ['row', 'row', 40, 68, 2, 'px'], ['corners', 'corner', 0, 28, 1, 'px'], ['frost', 'frost', 0, 40, 1, 'px'], ['glass', 'glass', 0, 1, .05, ''], ['stars', 'stars', 0, 3, .1, '×'], ['star size', 'starsize', .3, 3, .1, '×'], ['shine', 'shine', 0, 1.5, .05, '×'], ['twinkle', 'twinkle', 0, 3, .1, '×'], ['dust', 'dust', 0, 3, .1, '×'], ['drift', 'drift', 0, 3, .1, '×'], ['dust life', 'dustlife', .3, 3, .1, '×']];
 	var FONTS = { sans: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", serif: "ui-serif, 'New York', 'Iowan Old Style', Georgia, serif", round: "ui-rounded, 'SF Pro Rounded', system-ui, sans-serif", mono: "ui-monospace, 'SF Mono', Menlo, monospace" };
+	var skyDraw = null;
 	var TK = 'ls-tune', root = document.documentElement, base = getComputedStyle(root), DEF = {}, tuned = {};
 	TUNE.forEach(function (r) { DEF[r[1]] = parseFloat(base.getPropertyValue('--' + r[1])); });
 	DEF.font = 'sans';
 	try { tuned = JSON.parse(localStorage.getItem(TK)) || {}; } catch (e) {}
 	function val(k) { return k in tuned ? tuned[k] : DEF[k]; }
-	function apply() { TUNE.forEach(function (r) { root.style.setProperty('--' + r[1], val(r[1])); }); root.style.setProperty('--font', FONTS[val('font')] || FONTS.sans); }
+	function apply() { TUNE.forEach(function (r) { root.style.setProperty('--' + r[1], val(r[1])); }); root.style.setProperty('--font', FONTS[val('font')] || FONTS.sans); if (skyDraw) skyDraw(); }
 	function keep() { try { localStorage.setItem(TK, JSON.stringify(tuned)); } catch (e) {} }
 	apply();
 	var panel = document.getElementById('tune'), back = null;
@@ -221,7 +228,7 @@
 
 	// ---------- the sky: stars on one canvas, twinkling off the clock ----------
 	var sky = document.getElementById('sky'), sc = sky.getContext('2d'), stars = [], W = 0, H = 0;
-	for (var i = 0; i < 420; i++) stars.push({ x: Math.random(), y: Math.random(), r: Math.random() < .3 ? 1.2 : .7, a: .35 + Math.random() * .5, tw: Math.random() < .5 ? .6 + Math.random() * 1.2 : 0, ph: Math.random() * 6.2832 });
+	for (var i = 0; i < 1400; i++) stars.push({ x: Math.random(), y: Math.random(), r: Math.random() < .3 ? 1.2 : .7, a: .35 + Math.random() * .5, tw: Math.random() < .5 ? .6 + Math.random() * 1.2 : 0, ph: Math.random() * 6.2832 });
 	function size() {
 		var dpr = Math.min(window.devicePixelRatio || 1, 2);
 		W = window.innerWidth; H = window.innerHeight;
@@ -232,16 +239,53 @@
 	function draw(t) {
 		sc.clearRect(0, 0, W, H);
 		sc.fillStyle = '#fff';
+		// stars left behind by finished items, where they came to rest
+		var size = val('starsize'), shine = val('shine'), tw = REDUCED ? 0 : val('twinkle');
+		for (var j = 0; j < born.length; j++) { var bs = born[j]; sc.globalAlpha = Math.min(1, shine * bs.a * (0.6 + 0.4 * Math.sin(t * bs.tw * tw + bs.ph))); sc.beginPath(); sc.arc(bs.x * W, bs.y * H, bs.r * size, 0, 6.2832); sc.fill(); }
+		sc.fillStyle = '#fff';
 		// about one star per 6000 square px, whatever the screen
-		var n = Math.min(stars.length, Math.round(W * H / 6000));
+		var n = Math.min(stars.length, Math.round(W * H / 6000 * val('stars')));
 		for (var i = 0; i < n; i++) {
 			var s = stars[i];
-			sc.globalAlpha = s.tw && !REDUCED ? s.a * (0.6 + 0.4 * Math.sin(t * s.tw + s.ph)) : s.a;
-			sc.beginPath(); sc.arc(s.x * W, s.y * H, s.r, 0, 6.2832); sc.fill();
+			sc.globalAlpha = Math.min(1, shine * (s.tw && tw ? s.a * (0.6 + 0.4 * Math.sin(t * s.tw * tw + s.ph)) : s.a));
+			sc.beginPath(); sc.arc(s.x * W, s.y * H, s.r * size, 0, 6.2832); sc.fill();
 		}
 		sc.globalAlpha = 1;
 	}
 	var raf = 0, last = 0;
+	skyDraw = function () { draw(performance.now() / 1000); };
+
+	// ---------- a finished item comes apart into stars ----------
+	// each grain starts on a line of the text and drifts up off the clock; a few stay in the sky
+	var born = [], grains = [], dust = null, dc = null, draf = 0;
+	function scatter(el) {
+		if (!dust) { dust = document.createElement('canvas'); dust.id = 'dust'; dust.setAttribute('aria-hidden', 'true'); document.body.appendChild(dust); dc = dust.getContext('2d'); }
+		var dpr = Math.min(window.devicePixelRatio || 1, 2);
+		if (dust.width !== Math.round(W * dpr) || dust.height !== Math.round(H * dpr)) { dust.width = Math.round(W * dpr); dust.height = Math.round(H * dpr); dc.setTransform(dpr, 0, 0, dpr, 0, 0); }
+		var r = document.createRange(); r.selectNodeContents(el);
+		var rects = r.getClientRects(), now = performance.now() / 1000;
+		for (var k = 0; k < rects.length; k++) {
+			var b = rects[k], n = Math.min(480, Math.round(b.width * b.height / 28 * val('dust'))), dr = val('drift'), dl = val('dustlife');
+			for (var i = 0; i < n; i++) grains.push({ x: b.left + Math.random() * b.width, y: b.top + b.height * (.2 + Math.random() * .6), vx: (Math.random() - .5) * 26 * dr, vy: (-14 - Math.random() * 46) * dr, r: (.5 + Math.random() * .9) * val('starsize'), t0: now + Math.random() * .25, life: (1.1 + Math.random() * 1.3) * dl, tw: 4 + Math.random() * 8, ph: Math.random() * 6.2832, stay: Math.random() < .06 });
+		}
+		if (!draf) draf = requestAnimationFrame(sift);
+	}
+	function sift(ms) {
+		var t = ms / 1000, live = [];
+		dc.clearRect(0, 0, W, H); dc.fillStyle = '#fff';
+		for (var i = 0; i < grains.length; i++) {
+			var g = grains[i], age = t - g.t0;
+			if (age < 0) { live.push(g); continue; }
+			var k = age / g.life, x = g.x + g.vx * age, y = g.y + g.vy * age - 6 * val('drift') * age * age;
+			if (k >= 1) { if (g.stay && born.length < 240) born.push({ x: x / W, y: y / H, r: g.r, a: .55, tw: .6 + Math.random(), ph: g.ph }); continue; }
+			dc.globalAlpha = Math.min(1, val('shine') * (1 - k) * (1 - k) * (0.65 + 0.35 * Math.sin(age * g.tw + g.ph)));
+			dc.beginPath(); dc.arc(x, y, g.r * (1 - k * .4), 0, 6.2832); dc.fill();
+			live.push(g);
+		}
+		dc.globalAlpha = 1; grains = live;
+		draf = grains.length ? requestAnimationFrame(sift) : 0;
+		if (!draf) draw(t);
+	}
 	function loop(ms) { if (ms - last > 50) { last = ms; draw(ms / 1000); } raf = requestAnimationFrame(loop); }
 	window.addEventListener('resize', size);
 	size();
