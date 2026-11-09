@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<title>ephemeral list</title>
 	<meta name="description" content="an ephemeral list">
-	<meta name="theme-color" content="#0a0a0b">
+	<meta name="theme-color" content="#0b1120">
 	<meta name="color-scheme" content="dark">
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,7 +17,7 @@
 	<style>
 	/* every look below reads a variable; the tune panel moves them and keeps them */
 	:root { --size: 14; --weight: 200; --title: 25; --line: .75; --check: 14; --row: 42; --corner: 19; --frost: 10; --glass: .3; --stars: 1; --starsize: 1; --shine: 1; --twinkle: 1; --dust: 1; --drift: 1; --dustlife: 1; --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-		--night: #0a0a0b; --edge: rgba(255,255,255,.08); --ink: #f0f0f0; --ink-soft: rgba(240,240,240,.46); --accent: #f2f2f2; }
+		--night: #0b1120; --edge: rgba(255,255,255,.08); --ink: #eef1f7; --ink-soft: rgba(238,241,247,.46); --accent: #eef1f7; }
 	* { box-sizing: border-box; }
 	html, body { margin: 0; min-height: 100%; }
 	body { background: var(--night); color: var(--ink); font-family: var(--font); font-size: calc(var(--size) * 1px); font-weight: var(--weight); line-height: 1.4; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; -webkit-tap-highlight-color: transparent; }
@@ -30,7 +30,7 @@
 	.icon:hover, .icon[aria-expanded="true"] { color: var(--ink); background: rgba(255,255,255,.06); }
 	.icon circle { fill: var(--night); }
 	.icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: calc(var(--line) * 1.25); stroke-linecap: round; }
-	.group { background: rgba(30,30,32,var(--glass)); border: 1px solid var(--edge); border-radius: calc(var(--corner) * 1px); backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); -webkit-backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); overflow: hidden; }
+	.group { background: rgba(26,32,50,var(--glass)); border: 1px solid var(--edge); border-radius: calc(var(--corner) * 1px); backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); -webkit-backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); overflow: hidden; }
 	#list { list-style: none; margin: 0; padding: 0; }
 	/* a hairline between rows, starting where the text starts */
 	.item, #add { position: relative; }
@@ -39,7 +39,7 @@
 	.item label { position: relative; display: flex; align-items: center; gap: 16px; flex: 1; min-height: calc(var(--row) * 1px); padding: 12px 16px; cursor: pointer; }
 	.item input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
 	/* the check: a hairline ring, then a filled circle with the mark drawn in */
-	.box { flex: none; width: calc(var(--check) * 1px); height: calc(var(--check) * 1px); border: calc(var(--line) * 1px) solid rgba(240,240,240,.4); border-radius: 50%; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
+	.box { flex: none; width: calc(var(--check) * 1px); height: calc(var(--check) * 1px); border: calc(var(--line) * 1px) solid rgba(238,241,247,.4); border-radius: 50%; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
 	.item label:hover .box { border-color: var(--accent); }
 	.box svg { width: 55%; height: 55%; stroke: var(--night); stroke-width: calc(var(--line) * 2); stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s ease-out .05s; }
 	.text { flex: 1; min-width: 0; overflow-wrap: anywhere; transition: color .25s; }
@@ -58,7 +58,7 @@
 	#task:focus-visible { outline: none; }
 	#task::placeholder { color: var(--ink-soft); }
 	/* the tune panel */
-	#tune { position: fixed; z-index: 5; top: calc(16px + env(safe-area-inset-top)); right: 16px; width: 280px; max-height: calc(100dvh - 32px); overflow: auto; padding: 14px 16px 16px; background: rgba(22,22,24,.82); border: 1px solid var(--edge); border-radius: 16px; backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); box-shadow: 0 20px 50px rgba(0,0,0,.4); font-size: 13px; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+	#tune { position: fixed; z-index: 5; top: calc(16px + env(safe-area-inset-top)); right: 16px; width: 280px; max-height: calc(100dvh - 32px); overflow: auto; padding: 14px 16px 16px; background: rgba(20,26,42,.82); border: 1px solid var(--edge); border-radius: 16px; backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); box-shadow: 0 20px 50px rgba(0,0,0,.4); font-size: 13px; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
 	#tune[hidden] { display: none; }
 	#tune label { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 6px 0; color: var(--ink-soft); }
 	#tune output { color: var(--ink); font-variant-numeric: tabular-nums; }
