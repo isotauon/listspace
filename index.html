@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<title>ephemeral list</title>
 	<meta name="description" content="an ephemeral list">
-	<meta name="theme-color" content="#0f172a">
+	<meta name="theme-color" content="#0d1424">
 	<meta name="color-scheme" content="dark">
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,58 +14,70 @@
 	<link rel="icon" href="/icon-192.png" type="image/png">
 	<link rel="apple-touch-icon" href="/icon-192.png">
 	<link rel="manifest" href="/manifest.json">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap">
 	<style>
-	/* one night sky, glass over it: the field, the add button and every row are the same object */
-	:root { --night: #0f172a; --glass: rgba(255,255,255,.14); --glass-hi: rgba(255,255,255,.24); --edge: rgba(255,255,255,.12); --ink: #fff; --ink-soft: rgba(255,255,255,.62); }
+	:root { --night: #0d1424; --panel: rgba(28,34,52,.62); --edge: rgba(255,255,255,.09); --ink: #f2f4f8; --ink-soft: rgba(242,244,248,.5); --accent: #8fb0ff; }
 	* { box-sizing: border-box; }
 	html, body { margin: 0; min-height: 100%; }
-	body { background: var(--night); color: var(--ink); font-family: 'Open Sans', -apple-system, system-ui, sans-serif; font-size: 16px; -webkit-tap-highlight-color: transparent; }
+	body { background: var(--night); color: var(--ink); font: 17px/1.35 -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; letter-spacing: -.01em; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 	#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-	main { width: min(380px, 100%); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; gap: 12px; padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
-	/* the field comes first and stays at the top while the list scrolls under it */
-	#add { display: flex; gap: 8px; position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 2; }
-	#task, #plus, .item { background: var(--glass); border: 1px solid var(--edge); border-radius: 14px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--ink); }
-	#task { flex: 1; min-width: 0; height: 48px; padding: 0 14px; font: inherit; font-size: 16px; }
-	#task::placeholder { color: var(--ink); opacity: .7; }
-	#task:focus-visible, #plus:focus-visible, .item:has(input:focus-visible) { outline: 2px solid rgba(255,255,255,.8); outline-offset: 2px; }
-	#plus { width: 48px; height: 48px; flex: none; font: inherit; font-size: 26px; line-height: 1; cursor: pointer; padding: 0; }
-	#plus:hover { background: var(--glass-hi); }
-	#plus:active { transform: scale(.94); }
-	#list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-	.item { display: flex; min-height: 48px; transition: opacity .25s, transform .25s, background .15s; }
-	.item:hover { background: var(--glass-hi); }
-	.item label { position: relative; display: flex; align-items: center; gap: 12px; flex: 1; min-height: 48px; padding: 10px 14px; cursor: pointer; }
+	main { width: min(460px, 100%); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: calc(32px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); }
+	header { display: flex; align-items: baseline; justify-content: space-between; padding: 0 6px; }
+	h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -.02em; color: var(--accent); }
+	#count { font-size: 28px; font-weight: 600; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+	.group { background: var(--panel); border: 1px solid var(--edge); border-radius: 14px; backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); overflow: hidden; }
+	#list { list-style: none; margin: 0; padding: 0; }
+	/* a hairline between rows, starting where the text starts */
+	.item, #add { position: relative; }
+	.item + .item::before, #list:not(:empty) + #add::before { content: ''; position: absolute; top: 0; left: 52px; right: 0; height: 1px; background: var(--edge); }
+	.item { display: flex; transition: opacity .25s, transform .25s; }
+	.item label { position: relative; display: flex; align-items: center; gap: 14px; flex: 1; min-height: 50px; padding: 12px 16px; cursor: pointer; }
 	.item input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
-	/* the check: an empty ring of a box, then a filled one with the mark drawn in */
-	.box { flex: none; width: 22px; height: 22px; border: 1.5px solid rgba(255,255,255,.6); border-radius: 7px; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
-	.box svg { width: 14px; height: 14px; stroke: var(--night); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s ease-out .05s; }
-	.text { flex: 1; min-width: 0; overflow-wrap: anywhere; position: relative; transition: color .25s; }
-	.text::after { content: ''; position: absolute; left: 0; top: 50%; height: 1.5px; width: 0; background: var(--ink-soft); transition: width .25s ease-out; }
-	.item.done .box { background: var(--ink); border-color: var(--ink); transform: scale(1.08); }
+	/* the check: a ring, then a filled circle with the mark drawn in */
+	.box { flex: none; width: 22px; height: 22px; border: 1.5px solid rgba(242,244,248,.38); border-radius: 50%; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
+	.item label:hover .box { border-color: var(--accent); }
+	.box svg { width: 12px; height: 12px; stroke: var(--night); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s ease-out .05s; }
+	.text { flex: 1; min-width: 0; overflow-wrap: anywhere; transition: color .25s; }
+	.item.done .box { background: var(--accent); border-color: var(--accent); transform: scale(1.06); }
 	.item.done .box svg { stroke-dashoffset: 0; }
 	.item.done .text { color: var(--ink-soft); }
-	.item.done .text::after { width: 100%; }
 	.item.gone { opacity: 0; transform: translateX(24px); }
 	.item.dragging { opacity: .4; }
 	.item[draggable="true"] { cursor: grab; }
+	.item:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 14px; }
+	#add { display: flex; align-items: center; gap: 14px; min-height: 50px; padding: 0 16px; }
+	#plus { flex: none; width: 22px; height: 22px; border: 0; border-radius: 50%; padding: 0; background: var(--accent); color: var(--night); font: 600 18px/22px system-ui, sans-serif; cursor: pointer; display: grid; place-items: center; }
+	#plus::after { content: ''; position: absolute; width: 44px; height: 44px; }
+	#plus:active { transform: scale(.9); }
+	#plus:focus-visible, #task:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+	#task { flex: 1; min-width: 0; height: 50px; border: 0; background: none; color: var(--ink); font: inherit; padding: 0; }
+	#task:focus-visible { outline: none; }
+	#task::placeholder { color: var(--ink-soft); }
 	@media (hover: none) {
-		/* a thumb reaches the bottom: the field goes last and keeps to the bottom edge */
-		#add { order: 2; top: auto; bottom: calc(8px + env(safe-area-inset-bottom)); margin-top: auto; }
+		/* a phone: the title at the top, the list under it, the field a bar at the thumb */
+		main { justify-content: flex-start; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+		h1 { font-size: 34px; }
+		/* a blur here would make the group the box the fixed bar sits in */
+		.group { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(28,34,52,.86); }
+		.group:has(#list:empty) { border: 0; }
+		#add { position: fixed; left: 0; right: 0; bottom: 0; min-height: 0; padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: rgba(13,20,36,.72); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border-top: 1px solid var(--edge); }
+		#add::before { display: none; }
+		#plus { width: 30px; height: 30px; font-size: 22px; line-height: 30px; }
+		#task { height: 44px; padding: 0 14px; border-radius: 22px; background: rgba(255,255,255,.08); }
 	}
-	@media (prefers-reduced-motion: reduce) { .item, .box, .box svg, .text, .text::after, #plus { transition: none; } }
+	@media (prefers-reduced-motion: reduce) { .item, .box, .box svg, .text, #plus { transition: none; } }
 	</style>
 </head>
 <body>
 	<canvas id="sky" aria-hidden="true"></canvas>
 	<main>
-		<form id="add" autocomplete="off">
-			<input id="task" type="text" placeholder="+" aria-label="item" maxlength="140" autocapitalize="sentences" enterkeyhint="done" autocomplete="off">
-			<button id="plus" type="submit" aria-label="add">+</button>
-		</form>
-		<ul id="list" aria-label="list"></ul>
+		<header><h1>list</h1><span id="count" aria-label="open"></span></header>
+		<div class="group">
+			<ul id="list" aria-label="list"></ul>
+			<form id="add" autocomplete="off">
+				<button id="plus" type="submit" aria-label="add">+</button>
+				<input id="task" type="text" placeholder="new" aria-label="item" maxlength="140" autocapitalize="sentences" enterkeyhint="done" autocomplete="off">
+			</form>
+		</div>
 	</main>
 	<script>
 	(function () {
@@ -77,7 +89,7 @@
 	// ---------- the list: it lives as long as the tab does ----------
 	var KEY = 'ephemeral-list';
 	function items() { return Array.prototype.map.call(list.querySelectorAll('.item:not(.done)'), function (li) { return li.querySelector('.text').textContent; }); }
-	function save() { try { sessionStorage.setItem(KEY, JSON.stringify(items())); } catch (e) {} }
+	function save() { var n = items().length; document.getElementById('count').textContent = n || ''; try { sessionStorage.setItem(KEY, JSON.stringify(items())); } catch (e) {} }
 	function add(text) {
 		var li = document.createElement('li'); li.className = 'item';
 		var label = document.createElement('label');
@@ -112,6 +124,7 @@
 		save();
 	});
 	try { (JSON.parse(sessionStorage.getItem(KEY)) || []).forEach(add); } catch (e) {}
+	save();
 	// a keyboard is already there on a desk; on a phone the keyboard waits for a tap
 	if (HOVER) field.focus();
 
