@@ -74,6 +74,12 @@
 	.seg button[aria-pressed="true"] { color: var(--ink); border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.06); }
 	.foot { display: flex; gap: 4px; margin-top: 10px; }
 	.seg button:hover, .foot button:hover { color: var(--ink); }
+	/* a big screen: the list grows with it rather than sitting as a small island */
+	@media (min-width: 1800px) and (min-height: 1000px) { main { --z: 1.25; } }
+	@media (min-width: 2400px) and (min-height: 1300px) { main { --z: 1.5; } }
+	main { zoom: var(--z, 1); min-height: calc(100dvh / var(--z, 1)); }
+	/* a tablet held either way: a wider column */
+	@media (hover: none) and (min-width: 700px) { main { width: min(560px, 100%); } }
 	@media (hover: none) {
 		/* a phone: the title at the top, the list under it, the field its last row */
 		main { justify-content: flex-start; padding-top: calc(12px + env(safe-area-inset-top)); }
