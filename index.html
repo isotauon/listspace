@@ -16,97 +16,82 @@
 	<link rel="manifest" href="/manifest.json">
 	<style>
 	/* every look below reads a variable; the tune panel moves them and keeps them */
-	:root { --size: 17; --weight: 350; --title: 30; --line: 1; --check: 20; --row: 52; --corner: 16; --frost: 22; --glass: .5; --hue: 222; --font: ui-serif, 'New York', 'Iowan Old Style', Georgia, serif;
-		--night: #0b1120; --edge: rgba(255,255,255,.08); --ink: #eef1f7; --ink-soft: rgba(238,241,247,.46); --accent: hsl(var(--hue) 92% 80%); }
+	:root { --size: 15; --weight: 300; --line: .6; --check: 15; --row: 40; --corner: 10; --frost: 10; --glass: .05; --hue: 222; --tint: 0; --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+		--night: #0b1120; --edge: rgba(255,255,255,.1); --ink: #eef1f7; --ink-soft: rgba(238,241,247,.42); --accent: hsl(var(--hue) calc(var(--tint) * 1%) 88%); }
 	* { box-sizing: border-box; }
 	html, body { margin: 0; min-height: 100%; }
-	body { background: var(--night); color: var(--ink); font-family: var(--font); font-size: calc(var(--size) * 1px); font-weight: var(--weight); line-height: 1.4; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; -webkit-tap-highlight-color: transparent; }
+	body { background: var(--night); color: var(--ink); font-family: var(--font); font-size: calc(var(--size) * 1px); font-weight: var(--weight); line-height: 1.4; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent; }
 	#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-	main { width: min(460px, 100%); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding: calc(32px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); }
-	header { display: flex; align-items: center; gap: 14px; padding: 0 4px 0 6px; }
-	h1 { margin: 0; flex: 1; font-size: calc(var(--title) * 1px); font-weight: calc(var(--weight) - 50); letter-spacing: -.025em; line-height: 1; }
-	#count { font-size: calc(var(--title) * .6px); font-weight: calc(var(--weight) - 50); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-	.icon { width: 36px; height: 36px; display: grid; place-items: center; border: 0; padding: 0; background: none; color: var(--ink-soft); border-radius: 50%; cursor: pointer; transition: color .15s, background .15s; }
-	.icon:hover, .icon[aria-expanded="true"] { color: var(--ink); background: rgba(255,255,255,.06); }
-	.icon circle { fill: var(--night); }
-	.icon svg, #plus svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: calc(var(--line) * 1.25); stroke-linecap: round; }
-	.group { background: rgba(26,32,50,var(--glass)); border: 1px solid var(--edge); border-radius: calc(var(--corner) * 1px); backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); -webkit-backdrop-filter: blur(calc(var(--frost) * 1px)) saturate(1.3); overflow: hidden; }
-	#list { list-style: none; margin: 0; padding: 0; }
-	/* a hairline between rows, starting where the text starts */
-	.item, #add { position: relative; }
-	.item + .item::before, #list:not(:empty) + #add::before { content: ''; position: absolute; top: 0; left: calc(var(--check) * 1px + 32px); right: 0; height: 1px; background: var(--edge); }
-	.item { display: flex; transition: opacity .25s, transform .25s; }
-	.item label { position: relative; display: flex; align-items: center; gap: 16px; flex: 1; min-height: calc(var(--row) * 1px); padding: 12px 16px; cursor: pointer; }
+	main { width: min(360px, 100%); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
+	/* the field, the add button and every row are the same thin pane */
+	#add { display: flex; gap: 6px; margin-bottom: 4px; position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 2; }
+	#task, #plus, .item { background: rgba(255,255,255,var(--glass)); border: calc(var(--line) * 1px) solid var(--edge); border-radius: calc(var(--corner) * 1px); backdrop-filter: blur(calc(var(--frost) * 1px)); -webkit-backdrop-filter: blur(calc(var(--frost) * 1px)); color: var(--ink); }
+	#task { flex: 1; min-width: 0; height: calc(var(--row) * 1px); padding: 0 14px; font: inherit; }
+	#task::placeholder { color: var(--ink-soft); }
+	#task:focus-visible, #plus:focus-visible, #tunebtn:focus-visible, .item:has(input:focus-visible) { outline: 1px solid var(--accent); outline-offset: 2px; }
+	#plus { width: calc(var(--row) * 1px); height: calc(var(--row) * 1px); flex: none; padding: 0; display: grid; place-items: center; cursor: pointer; }
+	#plus svg, #tunebtn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: calc(var(--line) * 1.6); stroke-linecap: round; }
+	#plus:hover, .item:hover { background: rgba(255,255,255,calc(var(--glass) + .04)); }
+	#plus:active { transform: scale(.95); }
+	#list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+	.item { display: flex; transition: opacity .25s, transform .25s, background .15s; }
+	.item label { position: relative; display: flex; align-items: center; gap: 12px; flex: 1; min-height: calc(var(--row) * 1px); padding: 8px 14px; cursor: pointer; }
 	.item input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
-	/* the check: a hairline ring, then a filled circle with the mark drawn in */
-	.box { flex: none; width: calc(var(--check) * 1px); height: calc(var(--check) * 1px); border: calc(var(--line) * 1px) solid rgba(238,241,247,.4); border-radius: 50%; display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s; }
-	.item label:hover .box { border-color: var(--accent); }
-	.box svg { width: 55%; height: 55%; stroke: var(--night); stroke-width: calc(var(--line) * 2); stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s ease-out .05s; }
-	.text { flex: 1; min-width: 0; overflow-wrap: anywhere; transition: color .25s; }
+	/* the check: a hairline box, then a filled one with the mark drawn in */
+	.box { flex: none; width: calc(var(--check) * 1px); height: calc(var(--check) * 1px); border: calc(var(--line) * 1px) solid rgba(238,241,247,.5); border-radius: 30%; display: grid; place-items: center; transition: background .2s, border-color .2s; }
+	.box svg { width: 70%; height: 70%; stroke: var(--night); stroke-width: calc(var(--line) * 2.4); stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .22s ease-out .05s; }
+	.text { flex: 1; min-width: 0; overflow-wrap: anywhere; text-decoration: line-through transparent; text-decoration-thickness: calc(var(--line) * 1px); transition: color .25s, text-decoration-color .25s; }
 	.item.done .box { background: var(--accent); border-color: var(--accent); }
 	.item.done .box svg { stroke-dashoffset: 0; }
-	.item.done .text { color: var(--ink-soft); }
+	.item.done .text { color: var(--ink-soft); text-decoration-color: var(--ink-soft); }
 	.item.gone { opacity: 0; transform: translateX(24px); }
 	.item.dragging { opacity: .4; }
 	.item[draggable="true"] { cursor: grab; }
-	.item:has(input:focus-visible) { outline: 1px solid var(--accent); outline-offset: -1px; border-radius: calc(var(--corner) * 1px); }
-	#add { display: flex; align-items: center; gap: 16px; min-height: calc(var(--row) * 1px); padding: 0 16px; }
-	#plus { flex: none; width: calc(var(--check) * 1px); height: calc(var(--check) * 1px); border: calc(var(--line) * 1px) solid var(--accent); border-radius: 50%; padding: 0; background: none; color: var(--accent); cursor: pointer; display: grid; place-items: center; position: relative; }
-	#plus svg { width: 60%; height: 60%; }
-	#plus::after { content: ''; position: absolute; width: 44px; height: 44px; }
-	#plus:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
-	#plus:active { transform: scale(.9); }
-	#plus:focus-visible, .icon:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
-	#task { flex: 1; min-width: 0; height: calc(var(--row) * 1px); border: 0; background: none; color: var(--ink); font: inherit; padding: 0; }
-	#task:focus-visible { outline: none; }
-	#task::placeholder { color: var(--ink-soft); }
-	/* the tune panel */
-	#tune { position: fixed; z-index: 5; top: calc(16px + env(safe-area-inset-top)); right: 16px; width: 280px; max-height: calc(100dvh - 32px); overflow: auto; padding: 14px 16px 16px; background: rgba(20,26,42,.82); border: 1px solid var(--edge); border-radius: 16px; backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); box-shadow: 0 20px 50px rgba(0,0,0,.4); font-size: 13px; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+	/* tune: a faint mark in the corner, and the panel it opens */
+	#tunebtn { position: fixed; z-index: 4; top: calc(10px + env(safe-area-inset-top)); right: 10px; width: 36px; height: 36px; display: grid; place-items: center; border: 0; padding: 0; background: none; color: var(--ink); opacity: .3; border-radius: 50%; cursor: pointer; transition: opacity .15s; }
+	#tunebtn circle { fill: var(--night); }
+	#tunebtn:hover, #tunebtn[aria-expanded="true"] { opacity: .85; }
+	#tune { position: fixed; z-index: 5; top: calc(52px + env(safe-area-inset-top)); right: 12px; width: 260px; max-height: calc(100dvh - 64px); overflow: auto; padding: 10px 14px 14px; background: rgba(16,22,38,.84); border: 1px solid var(--edge); border-radius: 12px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); font: 300 12px/1.3 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
 	#tune[hidden] { display: none; }
-	#tune label { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 6px 0; color: var(--ink-soft); }
+	#tune label { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 5px 0; color: var(--ink-soft); }
 	#tune output { color: var(--ink); font-variant-numeric: tabular-nums; }
-	#tune input { grid-column: 1 / -1; width: 100%; margin: 6px 0 0; -webkit-appearance: none; appearance: none; height: 18px; background: none; cursor: pointer; }
-	#tune input::-webkit-slider-runnable-track { height: 1px; background: rgba(255,255,255,.22); }
-	#tune input::-moz-range-track { height: 1px; background: rgba(255,255,255,.22); }
-	#tune input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -6.5px; border-radius: 50%; background: var(--ink); border: 0; }
-	#tune input::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 0; }
+	#tune input { grid-column: 1 / -1; width: 100%; margin: 4px 0 0; -webkit-appearance: none; appearance: none; height: 16px; background: none; cursor: pointer; }
+	#tune input::-webkit-slider-runnable-track { height: 1px; background: rgba(255,255,255,.2); }
+	#tune input::-moz-range-track { height: 1px; background: rgba(255,255,255,.2); }
+	#tune input::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 11px; margin-top: -5px; border-radius: 50%; background: var(--ink); border: 0; }
+	#tune input::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); border: 0; }
 	#tune input:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
-	.seg { display: flex; gap: 4px; padding: 6px 0 4px; }
-	.seg button, #reset { flex: 1; height: 32px; border: 1px solid var(--edge); border-radius: 9px; background: none; color: var(--ink-soft); font: inherit; cursor: pointer; }
-	.seg button[aria-pressed="true"] { color: var(--ink); border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.06); }
-	#reset { width: 100%; margin-top: 10px; }
+	.seg { display: flex; gap: 4px; padding: 4px 0; }
+	.seg button, #reset { flex: 1; height: 28px; border: 1px solid var(--edge); border-radius: 7px; background: none; color: var(--ink-soft); font: inherit; cursor: pointer; }
+	.seg button[aria-pressed="true"] { color: var(--ink); border-color: rgba(255,255,255,.28); }
+	#reset { width: 100%; margin-top: 8px; }
 	.seg button:hover, #reset:hover { color: var(--ink); }
 	@media (hover: none) {
-		/* a phone: the title at the top, the list under it, the field a bar at the thumb */
-		main { justify-content: flex-start; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
-		/* a blur here would make the group the box the fixed bar sits in */
-		.group { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(26,32,50,calc(var(--glass) + .3)); }
-		.group:has(#list:empty) { border: 0; }
-		#add { position: fixed; left: 0; right: 0; bottom: 0; min-height: 0; padding: 10px 20px calc(10px + env(safe-area-inset-bottom)); background: rgba(11,17,32,.74); backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3); border-top: 1px solid var(--edge); }
-		#add::before { display: none; }
-		#plus { width: 32px; height: 32px; }
-		#task { height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(255,255,255,.07); }
-		#tune { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 72dvh; border-radius: 20px 20px 0 0; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
-		#tune label { padding: 8px 0; }
+		/* a thumb reaches the bottom: the field goes last and keeps to the bottom edge */
+		main { justify-content: flex-start; padding-top: calc(52px + env(safe-area-inset-top)); }
+		#add { order: 2; top: auto; bottom: calc(8px + env(safe-area-inset-bottom)); margin: auto 0 0; }
+		#task, #plus { height: 44px; }
+		#plus { width: 44px; }
+		.item label { min-height: max(44px, calc(var(--row) * 1px)); }
+		#tunebtn { width: 44px; height: 44px; }
+		#tune { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 70dvh; border-radius: 16px 16px 0 0; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
 		#tune input { height: 28px; }
-		#tune input::-webkit-slider-thumb { width: 22px; height: 22px; margin-top: -10.5px; }
-		#tune input::-moz-range-thumb { width: 22px; height: 22px; }
-		.seg button, #reset { height: 40px; }
+		#tune input::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -9.5px; }
+		#tune input::-moz-range-thumb { width: 20px; height: 20px; }
+		.seg button, #reset { height: 38px; }
 	}
-	@media (prefers-reduced-motion: reduce) { .item, .box, .box svg, .text, #plus, .icon { transition: none; } }
+	@media (prefers-reduced-motion: reduce) { .item, .box, .box svg, .text, #plus, #tunebtn { transition: none; } }
 	</style>
 </head>
 <body>
 	<canvas id="sky" aria-hidden="true"></canvas>
+	<button id="tunebtn" type="button" aria-label="tune" aria-expanded="false" aria-controls="tune"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5h12M2 11h12"/><circle cx="6" cy="5" r="1.6" fill="#0b1120"/><circle cx="10" cy="11" r="1.6" fill="#0b1120"/></svg></button>
 	<main>
-		<header><h1>list</h1><span id="count" aria-label="open"></span><button id="tunebtn" class="icon" type="button" aria-label="tune" aria-expanded="false" aria-controls="tune"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 14h14"/><circle cx="7" cy="6" r="2"/><circle cx="13" cy="14" r="2"/></svg></button></header>
-		<div class="group">
-			<ul id="list" aria-label="list"></ul>
-			<form id="add" autocomplete="off">
-				<button id="plus" type="submit" aria-label="add"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg></button>
-				<input id="task" type="text" placeholder="new" aria-label="item" maxlength="140" autocapitalize="sentences" enterkeyhint="done" autocomplete="off">
-			</form>
-		</div>
+		<form id="add" autocomplete="off">
+			<input id="task" type="text" placeholder="+" aria-label="item" maxlength="140" autocapitalize="sentences" enterkeyhint="done" autocomplete="off">
+			<button id="plus" type="submit" aria-label="add"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg></button>
+		</form>
+		<ul id="list" aria-label="list"></ul>
 	</main>
 	<section id="tune" aria-label="tune" hidden></section>
 	<script>
@@ -119,7 +104,7 @@
 	// ---------- the list: it lives as long as the tab does ----------
 	var KEY = 'ephemeral-list';
 	function items() { return Array.prototype.map.call(list.querySelectorAll('.item:not(.done)'), function (li) { return li.querySelector('.text').textContent; }); }
-	function save() { var n = items().length; document.getElementById('count').textContent = n || ''; try { sessionStorage.setItem(KEY, JSON.stringify(items())); } catch (e) {} }
+	function save() { try { sessionStorage.setItem(KEY, JSON.stringify(items())); } catch (e) {} }
 	function add(text) {
 		var li = document.createElement('li'); li.className = 'item';
 		var label = document.createElement('label');
@@ -160,14 +145,14 @@
 
 
 	// ---------- tune: sliders over the variables in :root, kept in this browser ----------
-	var TUNE = [['text', 'size', 14, 22, 1, 'px'], ['weight', 'weight', 200, 600, 50, ''], ['title', 'title', 20, 48, 1, 'px'], ['line', 'line', .5, 2.5, .25, 'px'], ['check', 'check', 14, 28, 1, 'px'], ['row', 'row', 40, 68, 2, 'px'], ['corners', 'corner', 0, 28, 1, 'px'], ['frost', 'frost', 0, 40, 1, 'px'], ['glass', 'glass', 0, 1, .05, ''], ['colour', 'hue', 0, 360, 2, '']];
+	var TUNE = [['text', 'size', 12, 22, 1, 'px'], ['weight', 'weight', 100, 600, 50, ''], ['line', 'line', .25, 2, .05, 'px'], ['check', 'check', 10, 26, 1, 'px'], ['row', 'row', 30, 64, 2, 'px'], ['corners', 'corner', 0, 28, 1, 'px'], ['frost', 'frost', 0, 40, 1, 'px'], ['glass', 'glass', 0, .3, .01, ''], ['colour', 'hue', 0, 360, 2, ''], ['tint', 'tint', 0, 100, 5, '']];
 	var FONTS = { sans: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", serif: "ui-serif, 'New York', 'Iowan Old Style', Georgia, serif", round: "ui-rounded, 'SF Pro Rounded', system-ui, sans-serif", mono: "ui-monospace, 'SF Mono', Menlo, monospace" };
-	var TK = 'ls-tune', root = document.documentElement, base = getComputedStyle(root), DEF = {}, tuned = {};
+	var TK = 'ls-tune2', root = document.documentElement, base = getComputedStyle(root), DEF = {}, tuned = {};
 	TUNE.forEach(function (r) { DEF[r[1]] = parseFloat(base.getPropertyValue('--' + r[1])); });
-	DEF.font = 'serif';
+	DEF.font = 'sans';
 	try { tuned = JSON.parse(localStorage.getItem(TK)) || {}; } catch (e) {}
 	function val(k) { return k in tuned ? tuned[k] : DEF[k]; }
-	function apply() { TUNE.forEach(function (r) { root.style.setProperty('--' + r[1], val(r[1])); }); root.style.setProperty('--font', FONTS[val('font')] || FONTS.serif); }
+	function apply() { TUNE.forEach(function (r) { root.style.setProperty('--' + r[1], val(r[1])); }); root.style.setProperty('--font', FONTS[val('font')] || FONTS.sans); }
 	function keep() { try { localStorage.setItem(TK, JSON.stringify(tuned)); } catch (e) {} }
 	apply();
 	var panel = document.getElementById('tune'), btn = document.getElementById('tunebtn');
