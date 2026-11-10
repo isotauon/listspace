@@ -1,7 +1,7 @@
 {
-  "name": "ephemeral list",
-  "short_name": "ephemeral",
-  "description": "an ephemeral list",
+  "name": "ls",
+  "short_name": "ls",
+  "description": "ls",
   "id": "/",
   "start_url": "/",
   "scope": "/",

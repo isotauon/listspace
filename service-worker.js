@@ -1,7 +1,7 @@
 // the page from the network when there is one, so a new build lands at once;
 // the cache answers when there is not. the cache name carries a version and
 // every other cache goes on activate, so nobody is left on an old build
-var CACHE = 'ephemeral-list-v2';
+var CACHE = 'ephemeral-list-v3';
 var SHELL = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 self.addEventListener('install', function (e) {
 	e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
